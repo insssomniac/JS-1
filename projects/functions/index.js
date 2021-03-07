@@ -91,10 +91,9 @@ function returnArgumentsArray() {
 
    console.log(newSum()) выведет 6
  */
-function bindFunction(fn) {
+function bindFunction(fn, ...args) {
   if (typeof fn == 'function') {
-    const args = Array.prototype.slice.call(arguments, 1);
-    return fn.apply(null, args);
+    return () => fn(...args);
   } else {
     console.log(fn + ' is not defined or not a function');
   }
