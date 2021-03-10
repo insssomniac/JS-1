@@ -152,10 +152,6 @@ function calculator(number = 0) {
   };
 }
 
-const a = calculator(4, 2, 1);
-
-// console.log(a.sum());
-
 /* При решении задач, постарайтесь использовать отладчик */
 
 export { isAllTrue, isSomeTrue, returnBadArguments, calculator };
