@@ -43,14 +43,14 @@ function map(array, fn) {
  */
 function reduce(array, fn, initial) {
   let accumulator = initial || array[0];
+  let index;
   if (initial) {
-    for (let i = 0; i < array.length; i++) {
-      accumulator = fn(accumulator, array[i], i, array);
-    }
+    index = 0;
   } else {
-    for (let i = 1; i < array.length; i++) {
-      accumulator = fn(accumulator, array[i], i, array);
-    }
+    index = 1;
+  }
+  for (let i = index; i < array.length; i++) {
+    accumulator = fn(accumulator, array[i], i, array);
   }
   return accumulator;
 }
@@ -64,11 +64,9 @@ function reduce(array, fn, initial) {
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
-  let i = 0;
   const arr = [];
   for (const key in obj) {
-    arr[i] = `${key}`.toUpperCase();
-    i++;
+    arr.push(key.toUpperCase());
   }
   return arr;
 }
@@ -86,7 +84,7 @@ function upperProps(obj) {
  */
 function createProxy(obj) {
   const proxy = new Proxy(obj, {
-    set(target, p, value, receiver) {
+    set(target, p, value) {
       if (typeof value == 'number') {
         target[p] = Math.pow(value, 2);
         return true;
