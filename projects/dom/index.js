@@ -228,7 +228,58 @@ function collectDOMStat(root) {
      nodes: [div]
    }
  */
-function observeChildNodes(where, fn) {}
+function observeChildNodes(where, fn) {
+  const observer = new MutationObserver((changes, object) => {
+    const obj = {};
+    let nodes = [];
+
+    for (const elem in changes) {
+      if (changes[elem].addedNodes.length > 0) {
+        obj.type = 'insert';
+        nodes = collectChildNodes(changes[elem].addedNodes);
+      }
+
+      if (changes[elem].removedNodes.length > 0) {
+        obj.type = 'remove';
+        nodes = collectChildNodes(changes[elem].removedNodes);
+      }
+    }
+
+    obj.nodes = nodes;
+
+    fn(obj);
+  });
+
+  observer.observe(where, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+function collectChildNodes(nodes) {
+  let result = [];
+
+  function collectNodesRecursive(node) {
+    if (node.children) {
+      for (let n = 0; n < node.children.length; n++) {
+        result.push(node.children[n]);
+      }
+    }
+  }
+
+  for (let n = 0; n < nodes.length; n++) {
+    if (nodes[n]) {
+      result.push(nodes[n]);
+      collectNodesRecursive(nodes[n]);
+    }
+  }
+
+  result = result.filter(function (x) {
+    return x !== undefined && x !== null;
+  });
+
+  return result;
+}
 
 export {
   createDivWithText,
