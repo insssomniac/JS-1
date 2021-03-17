@@ -30,6 +30,7 @@
  */
 
 import './towns.html';
+import { loadAndSortTowns } from './functions';
 
 const homeworkContainer = document.querySelector('#app');
 
@@ -39,7 +40,9 @@ const homeworkContainer = document.querySelector('#app');
  Массив городов пожно получить отправив асинхронный запрос по адресу
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
-function loadTowns() {}
+function loadTowns() {
+  return loadAndSortTowns();
+}
 
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
@@ -52,7 +55,10 @@ function loadTowns() {}
    isMatching('Moscow', 'SCO') // true
    isMatching('Moscow', 'Moscov') // false
  */
-function isMatching(full, chunk) {}
+function isMatching(full, chunk) {
+  const regexp = new RegExp(`${chunk}`, 'ig');
+  return regexp.test(full);
+}
 
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
@@ -67,8 +73,46 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-retryButton.addEventListener('click', () => {});
+let townsList = [];
 
-filterInput.addEventListener('input', function () {});
+function loadData() {
+  loadingBlock.hidden = false;
+  loadingFailedBlock.hidden = true;
+  retryButton.hidden = true;
+  filterInput.hidden = true;
+
+  return loadTowns().then(
+    (towns) => {
+      loadingBlock.hidden = true;
+      filterInput.hidden = false;
+      townsList = towns;
+    },
+    (rejected) => {
+      loadingBlock.hidden = true;
+      loadingFailedBlock.hidden = false;
+      retryButton.hidden = false;
+    }
+  );
+}
+
+loadData();
+
+retryButton.addEventListener('click', () => {
+  loadData();
+});
+
+filterInput.addEventListener('input', function () {
+  if (filterInput.value) {
+    let string = '';
+    for (const town in townsList) {
+      if (isMatching(townsList[town].name, filterInput.value)) {
+        string += `<div> ${townsList[town].name} </div>`;
+      }
+    }
+    filterResult.innerHTML = string;
+  } else {
+    filterResult.innerHTML = '';
+  }
+});
 
 export { loadTowns, isMatching };
