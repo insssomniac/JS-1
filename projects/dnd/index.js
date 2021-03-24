@@ -21,11 +21,59 @@ const homeworkContainer = document.querySelector('#app');
 
 document.addEventListener('mousemove', (e) => {});
 
-export function createDiv() {}
-
 const addDivButton = homeworkContainer.querySelector('#addDiv');
 
-addDivButton.addEventListener('click', function () {
+let currentDrag;
+
+export function createDiv() {
+  const divWidth = (Math.random() * 100 + 50).toFixed();
+  const divHeight = (Math.random() * 100 + 50).toFixed();
+
+  const color = '#' + Math.round(0xffffff * Math.random()).toString(16);
+
+  const posX = (Math.random() * divWidth + 100).toFixed();
+  const posY = (Math.random() * divHeight + 100).toFixed();
+
+  const newDiv = document.createElement('div');
+
+  newDiv.className = 'draggable-div';
+  newDiv.style.cssText = `width: ${divWidth}px; height: ${divHeight}px; left: ${posX}px; top: ${posY}px; background-color: ${color};`;
+  newDiv.draggable = true;
+
+  return newDiv;
+}
+
+addDivButton.addEventListener('click', () => {
   const div = createDiv();
   homeworkContainer.appendChild(div);
+});
+
+document.addEventListener('dragstart', (e) => {
+  const zone = e.target.closest('#app');
+
+  if (zone) {
+    currentDrag = { startZone: zone, node: e.target };
+    e.dataTransfer.setData('text/html', 'dragstart');
+    currentDrag.offsetX = e.offsetX;
+    currentDrag.offsetY = e.offsetY;
+  }
+});
+
+document.addEventListener('dragover', (e) => {
+  const zone = e.target.closest('#app');
+
+  if (zone) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener('dragend', (e) => {
+  e.preventDefault();
+
+  const zone = e.target.closest('#app');
+
+  if (currentDrag && zone && e.target === currentDrag.node) {
+    e.target.style.left = `${e.clientX - currentDrag.offsetX}px`;
+    e.target.style.top = `${e.clientY - currentDrag.offsetY}px`;
+  }
 });
