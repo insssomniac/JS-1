@@ -45,8 +45,76 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('input', function () {});
+filterNameInput.addEventListener('input', function () {
+  buildTable();
+});
 
-addButton.addEventListener('click', () => {});
+addButton.addEventListener('click', () => {
+  document.cookie = `${addNameInput.value}=${addValueInput.value}`;
+  addNameInput.value = '';
+  addValueInput.value = '';
 
-listTable.addEventListener('click', (e) => {});
+  buildTable();
+});
+
+listTable.addEventListener('click', (e) => {
+  if (e.target.getAttribute('name') === 'delete_row') {
+    const closestTr = e.target.closest('tr');
+    document.cookie = `${closestTr.firstChild.textContent}=''; max-age=0`;
+    buildTable();
+  }
+});
+
+function getCookies() {
+  if (document.cookie) {
+    return document.cookie.split('; ').reduce((prev, current) => {
+      const [name, value] = current.split('=');
+      prev[name] = value;
+      return prev;
+    }, {});
+  }
+}
+
+function filterCookies() {
+  const cookies = getCookies();
+  const str = filterNameInput.value;
+  if (str) {
+    for (const elem in cookies) {
+      if (!(elem.includes(str) || cookies[elem].includes(str))) {
+        delete cookies[elem];
+      }
+    }
+  }
+  return cookies;
+}
+
+function buildTable() {
+  listTable.innerHTML = '';
+  const cookies = filterCookies();
+
+  if (cookies) {
+    for (const elem in cookies) {
+      const tr = document.createElement('TR');
+
+      const td1 = document.createElement('TD');
+      td1.appendChild(document.createTextNode(elem));
+
+      const td2 = document.createElement('TD');
+      td2.appendChild(document.createTextNode(cookies[elem]));
+
+      const removeBtn = document.createElement('BUTTON');
+      removeBtn.setAttribute('name', 'delete_row');
+      removeBtn.innerHTML = 'x';
+
+      const td3 = document.createElement('TD');
+      td3.appendChild(removeBtn);
+
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      listTable.appendChild(tr);
+    }
+  }
+}
+
+buildTable();
