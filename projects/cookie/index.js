@@ -51,17 +51,16 @@ filterNameInput.addEventListener('input', function () {
 
 addButton.addEventListener('click', () => {
   document.cookie = `${addNameInput.value}=${addValueInput.value}`;
-  addNameInput.value = '';
-  addValueInput.value = '';
 
   buildTable();
 });
 
 listTable.addEventListener('click', (e) => {
   if (e.target.getAttribute('name') === 'delete_row') {
+    const cookieName = e.target.dataset.cookie;
     const closestTr = e.target.closest('tr');
-    document.cookie = `${closestTr.firstChild.textContent}=''; max-age=0`;
-    buildTable();
+    document.cookie = `${cookieName}=''; max-age=0`;
+    closestTr.remove();
   }
 });
 
@@ -93,6 +92,8 @@ function buildTable() {
   const cookies = filterCookies();
 
   if (cookies) {
+    const fragment = document.createDocumentFragment();
+
     for (const elem in cookies) {
       const tr = document.createElement('TR');
 
@@ -104,6 +105,7 @@ function buildTable() {
 
       const removeBtn = document.createElement('BUTTON');
       removeBtn.setAttribute('name', 'delete_row');
+      removeBtn.setAttribute('data-cookie', `${elem}`);
       removeBtn.innerHTML = 'x';
 
       const td3 = document.createElement('TD');
@@ -112,8 +114,10 @@ function buildTable() {
       tr.appendChild(td1);
       tr.appendChild(td2);
       tr.appendChild(td3);
-      listTable.appendChild(tr);
+      fragment.appendChild(tr);
     }
+
+    listTable.appendChild(fragment);
   }
 }
 
